@@ -24,7 +24,7 @@ int main()
     colorBlack = BlackPixel(dpy, DefaultScreen(dpy));
 
     w = XCreateSimpleWindow(dpy, root, 0, 0, 800, 600, 0, colorBlack, colorBlack);
-    XStoreName(dpy, w, "Rohit Nimkar: keyboard events");
+    XStoreName(dpy, w, "Rohit Nimkar: Paint v0");
     XSelectInput(dpy, w, KeyPressMask | KeyReleaseMask | ExposureMask | StructureNotifyMask | ButtonMotionMask | Button1MotionMask | ButtonPressMask | ButtonReleaseMask);
 
     GC gc = XCreateGC(dpy, w, 0, nullptr);
