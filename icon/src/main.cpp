@@ -1,8 +1,11 @@
+#include <X11/X.h>
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <X11/XKBlib.h>
 #include <X11/keysymdef.h>
 #include <iostream>
 #include "line.h"
+
 int main()
 {
     Display* dpy                 = nullptr;
@@ -17,9 +20,11 @@ int main()
     int scr                      = 0;
     Colormap defaultColormap     = {};
     Visual* defaultVisual        = {};
-    GC gc  = nullptr;
-    GC ec  = nullptr;
-    Status rc = 0;
+    GC gc                        = nullptr;
+    GC ec                        = nullptr;
+    Status rc                    = 0;
+    XTextProperty title          = {};
+    const char* titleString      = "Rohit Nimkar: Setting window icon";
 
     dpy = XOpenDisplay(":0");
     if (nullptr == dpy)
@@ -35,7 +40,16 @@ int main()
     colorBlack      = BlackPixel(dpy, scr);
 
     w = XCreateSimpleWindow(dpy, root, 0, 0, 800, 600, 0, colorBlack, colorBlack);
-    XStoreName(dpy, w, "Rohit Nimkar: Red colored lines");
+
+    /* Set window title */
+    // XStoreName(dpy, w, "Rohit Nimkar: Setting icon for window");
+    rc = XStringListToTextProperty((char**)&titleString, 1, &title);
+    if (0 == rc)
+    {
+        std::cerr << "failed to translate string list to text property\n";
+        return -1;
+    }
+    XSetWMName(dpy, w, &title);
 
     /* register for eventsx */
     XSelectInput(dpy, w, ExposureMask | KeyPress | StructureNotifyMask | ButtonMotionMask | ButtonPressMask | ButtonReleaseMask);
@@ -44,10 +58,12 @@ int main()
     wm_delete_window = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
     XSetWMProtocols(dpy, w, &wm_delete_window, 1);
 
+    /* create colormap */
     rc = XAllocNamedColor(dpy, defaultColormap, "green", &exactColor, &systemColor);
     if (0 == rc) { std::cerr << "Failed to allocate entry\n"; }
     std::cout << "Entry for color green allocated as (" << exactColor.red << ", " << exactColor.green << ", " << exactColor.blue << ")\n";
 
+    /* create graphic context */
     gc = XCreateGC(dpy, w, 0, nullptr);
     XSetForeground(dpy, gc, exactColor.pixel);
 
@@ -57,6 +73,27 @@ int main()
     /* make window visible */
     XMapWindow(dpy, w);
     XFlush(dpy);
+
+
+
+    Pixmap bitmap;
+    unsigned int bitmap_width, bitmap_height;
+    int hotspot_x, hotspot_y;
+    rc = XReadBitmapFile(dpy, w, "icon.bmp", &bitmap_width, &bitmap_height, &bitmap, &hotspot_x, &hotspot_y);
+    switch (rc) {
+        case BitmapSuccess:
+        std::cout<< "Bitmap success\n";
+        break;
+        case BitmapFileInvalid:
+        std::cout << "Bitmap file is invalid\n";
+        break;
+        case BitmapOpenFailed:
+            std::cout << "Bitmap open failed" << std::endl;
+        break;
+            case BitmapNoMemory:
+        std::cout << "Bitmap no memory" << std::endl;
+        break;
+    }
 
     line l1, l2;
     while (!globalAbortFlag)
