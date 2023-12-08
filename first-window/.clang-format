@@ -1,0 +1,18 @@
+---
+Language: Cpp
+
+TabWidth: '4'
+IndentWidth: '4'
+ContinuationIndentWidth: '4'
+PointerAlignment: Right
+BreakBeforeBraces: Allman
+
+AlignConsecutiveMacros: 'true'
+AlignConsecutiveDeclarations: 'true'
+AlignConsecutiveAssignments: 'true'
+ColumnLimit: '200'
+
+IndentCaseLabels: true
+
+
+...
